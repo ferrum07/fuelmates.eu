@@ -10,9 +10,24 @@ Publicada en [fuelmates.eu](https://fuelmates.eu).
 npm run dev
 ```
 
-Se abre en http://localhost:5173. Para publicarla: `npm run build` genera la
-carpeta `dist/`, que se puede subir a cualquier hosting estático (Netlify,
-Vercel, GitHub Pages).
+Se abre en http://localhost:5173.
+
+## Publicar
+
+```bash
+npm run build
+```
+
+Genera la carpeta `docs/`, que es la web ya compilada. Se llama así porque
+GitHub Pages, publicando desde una rama, solo admite la raíz del repositorio o
+una carpeta llamada exactamente `docs`.
+
+Para actualizar la web: lanzar el build y subir el contenido de `docs/` al
+repositorio. En **Settings → Pages** el origen debe ser *Deploy from a branch*
+→ rama `main` → carpeta `/docs`.
+
+`docs/CNAME` lleva el dominio propio y lo genera el build desde
+[public/CNAME](public/CNAME); no hay que tocarlo a mano.
 
 ## Cómo calcula
 

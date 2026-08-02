@@ -100,6 +100,9 @@ self.addEventListener('fetch', (evento) => {
 export default defineConfig({
   plugins: [react(), serviceWorker()],
   server: { port: 5173 },
+  // Sale en docs/ porque GitHub Pages, publicando desde una rama, solo admite
+  // la raíz del repo o una carpeta llamada exactamente "docs".
+  build: { outDir: 'docs' },
   // Rutas relativas: la app funciona igual en la raíz de un dominio que en
   // un subdirectorio como usuario.github.io/lo-que-sea/, sin tocar nada.
   base: './',
