@@ -66,6 +66,59 @@ céntimo.
 El consumo del coche y el precio del combustible se guardan en el navegador
 (`localStorage`) para no reescribirlos en cada viaje.
 
+## Precios reales de gasolineras
+
+En el modo *por distancia*, el botón **Buscar el precio en una gasolinera**
+trae los precios oficiales del servicio REST del Ministerio para la Transición
+Ecológica ([geoportalgasolineras.es](https://geoportalgasolineras.es/)). Es
+público, sin clave, y envía `Access-Control-Allow-Origin: *`, así que se llama
+directamente desde el navegador: no hace falta servidor propio.
+
+- **Nunca se piden las 11.482 estaciones de España** (11,6 MB y 7 segundos).
+  Se filtra por provincia: ~1 MB y un segundo.
+- La provincia se deduce del GPS **sin geocodificador externo**: la app lleva
+  el centro de cada provincia en [src/provincias.json](src/provincias.json) (4 KB)
+  y busca el más cercano. Probado con 12 ciudades, 12 aciertos. Se puede
+  corregir a mano con el desplegable.
+- La respuesta se guarda 30 minutos en `localStorage`, que es cada cuánto se
+  actualizan los precios oficiales.
+- Si no hay cobertura o se deniega el permiso de ubicación, el campo de precio
+  manual sigue funcionando igual: la app nunca depende de la red para calcular.
+
+La tabla de provincias se regenera (descarga el listado completo una vez y
+calcula la mediana de coordenadas de cada provincia) con:
+
+```bash
+npm run provincias
+```
+
+## Movimiento e interfaz
+
+Siguiendo la [guía de diseño Apple de Emil
+Kowalski](https://github.com/emilkowalski/skills/blob/main/skills/apple-design/SKILL.md):
+
+- **Muelles de verdad, no curvas a ojo.** Las transiciones usan `linear()` de
+  CSS con la respuesta al escalón de un muelle real, muestreada de los
+  parámetros de Apple (*damping* 1,0 / *response* 0,4 s para mover cosas;
+  0,8 / 0,3 s para paneles, con su rebote del 1,5 %). Se generan con
+  `node scripts/generar-muelles.mjs` y hay respaldo en `cubic-bezier` para
+  navegadores sin `linear()`.
+- **La pulsación se ve al bajar el dedo**, no al soltar: `scale(0.97)` en
+  100 ms al pulsar, y vuelta con muelle al soltar. Más `touch-action:
+  manipulation` para quitar el retardo de 300 ms del móvil.
+- **Interrumpible**: el panel de gasolineras entra con `transition` y
+  `@starting-style`, no con `@keyframes`, porque una transición se puede cortar
+  a mitad y retomar desde donde esté.
+- **Material translúcido**: la barra de resumen usa `backdrop-filter` con filo
+  claro arriba, y el contenido pasa por debajo en vez de chocar contra una
+  barra opaca.
+- **Solo se anima `transform` y `opacity`**, que son las dos propiedades que el
+  compositor mueve sin repintar.
+- **Accesibilidad**: `prefers-reduced-motion` sustituye el movimiento por
+  fundidos de 200 ms (no lo elimina todo, que se perderían pistas de qué está
+  pasando); `prefers-reduced-transparency` cambia el material por fondo sólido;
+  `prefers-contrast: more` sube bordes y textos secundarios.
+
 ## App instalable (PWA)
 
 Funciona sin conexión y se puede instalar en la pantalla de inicio: en Android,
@@ -97,6 +150,10 @@ npm run iconos
 - [src/calculo.js](src/calculo.js) — toda la lógica del cálculo y el reparto,
   sin React. Es donde tocar si cambian las reglas.
 - [src/App.jsx](src/App.jsx) — la interfaz.
+- [src/gasolineras.js](src/gasolineras.js) — API del Ministerio, caché y
+  cálculo de distancias.
+- [src/SelectorGasolinera.jsx](src/SelectorGasolinera.jsx) — el panel de elegir
+  gasolinera.
 - [src/styles.css](src/styles.css) — estilos, con modo claro y oscuro.
 - [scripts/generar-iconos.mjs](scripts/generar-iconos.mjs) — genera los PNG del
   icono.

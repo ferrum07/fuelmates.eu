@@ -20,6 +20,41 @@
 
   --radio: 1.15rem;
   --radio-chico: 0.75rem;
+
+  /* Material translúcido: deja ver el contenido pasar por debajo */
+  --material: rgba(255, 255, 255, 0.72);
+  --material-borde: rgba(255, 255, 255, 0.55);
+
+  /* Movimiento. Los muelles no son curvas inventadas: son la respuesta al
+     escalón de un muelle real con los parámetros de Apple (damping/response),
+     muestreada a linear(). Ver scripts/generar-muelles.mjs.
+     Aquí van los respaldos para navegadores sin linear(). */
+  --muelle: cubic-bezier(0.22, 1, 0.36, 1);
+  --muelle-panel: cubic-bezier(0.32, 0.72, 0, 1);
+  --dur-muelle: 0.61s;
+  --dur-panel: 0.43s;
+  --dur-pulsar: 100ms;
+}
+
+@supports (transition-timing-function: linear(0, 1)) {
+  :root {
+    /* damping 1.0, response 0.4s — asienta sin rebote */
+    --muelle: linear(
+      0 0%, 0.0533 4%, 0.1688 8%, 0.303 12%, 0.4335 15%, 0.5497 19%,
+      0.6482 23%, 0.7287 27%, 0.793 31%, 0.8434 35%, 0.8825 38%, 0.9123 42%,
+      0.9349 46%, 0.9519 50%, 0.9646 54%, 0.9741 58%, 0.981 62%, 0.9862 65%,
+      0.99 69%, 0.9927 73%, 0.9947 77%, 0.9962 81%, 0.9973 85%, 0.998 88%,
+      0.9986 92%, 0.999 96%, 1 100%
+    );
+    /* damping 0.8, response 0.3s — el rebote del 1,5 % de una hoja iOS */
+    --muelle-panel: linear(
+      0 0%, 0.0498 4%, 0.1651 8%, 0.3074 12%, 0.4524 15%, 0.5856 19%,
+      0.6999 23%, 0.793 27%, 0.8653 31%, 0.9192 35%, 0.9575 38%, 0.9834 42%,
+      0.9998 46%, 1.0092 50%, 1.0138 54%, 1.0152 58%, 1.0146 62%, 1.0129 65%,
+      1.0108 69%, 1.0086 73%, 1.0065 77%, 1.0047 81%, 1.0033 85%, 1.0022 88%,
+      1.0013 92%, 1.0007 96%, 1 100%
+    );
+  }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -40,6 +75,9 @@
 
     --sombra: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 30px -12px rgba(0, 0, 0, 0.6);
     --sombra-hero: 0 12px 32px -14px rgba(0, 0, 0, 0.8);
+
+    --material: rgba(18, 31, 29, 0.72);
+    --material-borde: rgba(255, 255, 255, 0.1);
   }
 }
 
@@ -60,10 +98,21 @@ body {
   background-repeat: no-repeat;
   color: var(--texto);
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  font-size: 16px;
-  line-height: 1.45;
+  /* En % para respetar el tamaño de texto que tenga puesto el usuario */
+  font-size: 100%;
+  line-height: 1.5;
+  font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
+}
+
+/* Sin retardo de 300 ms al tocar: la respuesta empieza en el mismo dedo abajo */
+button,
+input,
+select,
+label,
+.interruptor {
+  touch-action: manipulation;
 }
 
 .app {
@@ -129,7 +178,7 @@ body {
   height: calc(100% - 0.56rem);
   border-radius: 0.68rem;
   background: var(--acento-suave);
-  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform var(--dur-panel) var(--muelle-panel);
 }
 
 .selector-modo button {
@@ -265,6 +314,164 @@ body {
   margin: 0 0 0.6rem;
 }
 
+/* ---------- selector de gasolinera ---------- */
+
+.boton-buscar {
+  width: 100%;
+  margin-top: 0.85rem;
+  padding: 0.6rem;
+}
+
+.selector-gasolinera {
+  margin-top: 0.85rem;
+  padding: 0.85rem;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-chico);
+  background: var(--superficie-hueca);
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  /* Nace donde está el botón que lo abre: entra y saldría por el mismo sitio */
+  transform-origin: top center;
+  /* Con transición y @starting-style en vez de @keyframes: una transición se
+     puede interrumpir a mitad y retomar desde donde esté; una animación no. */
+  transition: opacity var(--dur-panel) var(--muelle-panel),
+    transform var(--dur-panel) var(--muelle-panel);
+}
+
+@starting-style {
+  .selector-gasolinera {
+    opacity: 0;
+    transform: translateY(-0.5rem) scale(0.97);
+  }
+}
+
+.cabecera-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.7rem;
+}
+
+.cabecera-panel strong {
+  font-size: 0.93rem;
+}
+
+.fichas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-bottom: 0.6rem;
+}
+
+.ficha {
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--tenue);
+  background: var(--superficie);
+  border: 1.5px solid var(--borde);
+  border-radius: 999px;
+  padding: 0.32rem 0.7rem;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease,
+    transform var(--dur-muelle) var(--muelle);
+}
+
+.ficha.activa {
+  color: var(--acento);
+  border-color: var(--acento);
+  background: var(--acento-suave);
+}
+
+.fila-provincia {
+  display: flex;
+  gap: 0.45rem;
+  margin-bottom: 0.7rem;
+}
+
+.select {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 0.5rem 0.6rem;
+  border: 1.5px solid var(--borde);
+  border-radius: var(--radio-chico);
+  background: var(--superficie);
+  color: inherit;
+}
+
+.fila-provincia .boton-secundario {
+  white-space: nowrap;
+}
+
+.estaciones {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 21rem;
+  overflow-y: auto;
+  /* Al llegar al final no arrastra el scroll de la página detrás */
+  overscroll-behavior: contain;
+}
+
+.estacion {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+  background: var(--superficie);
+  border: 1.5px solid var(--borde);
+  border-radius: var(--radio-chico);
+  padding: 0.5rem 0.65rem;
+  cursor: pointer;
+  transition: border-color 0.12s ease,
+    transform var(--dur-muelle) var(--muelle);
+}
+
+.estacion:active {
+  border-color: var(--acento);
+}
+
+.estacion-datos {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.estacion-datos strong {
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.estacion-datos small {
+  font-size: 0.76rem;
+  color: var(--tenue);
+}
+
+.estacion-precio {
+  flex: none;
+  font-size: 1.02rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--acento);
+}
+
+.estacion-precio small {
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
 /* ---------- interruptores ---------- */
 
 .interruptor {
@@ -302,7 +509,7 @@ body {
   border-radius: 50%;
   background: #fff;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
-  transition: transform 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: transform var(--dur-panel) var(--muelle-panel);
 }
 
 .interruptor input:checked + .palanca {
@@ -410,7 +617,7 @@ body {
   cursor: pointer;
   padding: 0 0.15rem;
   border-radius: 0.4rem;
-  transition: color 0.15s ease;
+  transition: color 0.15s ease, transform var(--dur-muelle) var(--muelle);
 }
 
 .boton-icono:hover {
@@ -425,7 +632,20 @@ body {
   cursor: pointer;
   border-radius: var(--radio-chico);
   font-weight: 650;
-  transition: transform 0.1s ease, opacity 0.15s ease, background 0.15s ease;
+  transition: transform var(--dur-muelle) var(--muelle), opacity 0.15s ease,
+    background 0.15s ease;
+}
+
+/* Al soltar vuelve con muelle; al pulsar responde en 100 ms, porque el
+   destello tiene que verse en el instante del dedo abajo, no al soltar. */
+.boton:active,
+.boton-secundario:active,
+.estacion:active,
+.ficha:active,
+.boton-icono:active {
+  transform: scale(0.97);
+  transition-duration: var(--dur-pulsar);
+  transition-timing-function: ease-out;
 }
 
 .boton {
@@ -436,10 +656,6 @@ body {
   background: #fff;
   color: var(--hero-a);
   font-size: 0.98rem;
-}
-
-.boton:active {
-  transform: scale(0.985);
 }
 
 .boton-secundario {
@@ -563,9 +779,123 @@ body {
   font-size: 0.93rem;
 }
 
+/* ---------- barra de resumen ---------- */
+
+/* Material translúcido: el contenido pasa por debajo en vez de chocar contra
+   una barra opaca. Solo aparece cuando el resultado se ha ido de la pantalla. */
+.barra-resumen {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  background: var(--material);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  /* Filo claro arriba: el borde "recoge la luz" y despega la barra del fondo */
+  border-top: 1px solid var(--material-borde);
+  transition: transform var(--dur-panel) var(--muelle-panel),
+    opacity 0.2s ease;
+  will-change: transform;
+}
+
+.barra-resumen.oculta {
+  transform: translateY(110%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.barra-interior {
+  max-width: 30rem;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem max(1rem, env(safe-area-inset-right))
+    calc(0.6rem + env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+}
+
+.barra-datos {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+  min-width: 0;
+}
+
+.barra-datos small {
+  font-size: 0.75rem;
+  color: var(--tenue);
+}
+
+.barra-datos strong {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- accesibilidad ---------- */
+
 @media (prefers-reduced-motion: reduce) {
-  * {
-    transition: none !important;
+  /* La guía no pide quitar todo: pide sustituir movimiento por fundidos
+     cortos, conservando los cambios de color que ayudan a entender qué pasa. */
+  *,
+  *::before,
+  *::after {
     animation: none !important;
+    transition-property: opacity, color, background-color, border-color !important;
+    transition-duration: 200ms !important;
+    transition-timing-function: ease !important;
+  }
+
+  .boton:active,
+  .boton-secundario:active,
+  .estacion:active,
+  .ficha:active,
+  .boton-icono:active,
+  .selector-gasolinera {
+    transform: none;
+  }
+
+  .barra-resumen {
+    transform: none;
+  }
+
+  .barra-resumen.oculta {
+    visibility: hidden;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .barra-resumen {
+    background: var(--superficie);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border-top-color: var(--borde);
+  }
+}
+
+@media (prefers-contrast: more) {
+  .barra-resumen {
+    background: var(--superficie);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .tarjeta,
+  .persona,
+  .entrada-grupo,
+  .estacion,
+  .ficha {
+    border-color: var(--texto);
+  }
+
+  .subtitulo,
+  .nota,
+  .etiqueta,
+  .texto small,
+  .estacion-datos small {
+    color: var(--texto);
   }
 }

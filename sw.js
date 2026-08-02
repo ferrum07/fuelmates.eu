@@ -1,10 +1,10 @@
 // Generado automáticamente por vite.config.js. No editar a mano.
-const CACHE = 'gasolina-1785669401214'
+const CACHE = 'gasolina-1785685796910'
 const ARCHIVOS = [
   "./",
   "./index.html",
-  "./assets/index-N3zBCqz0.js",
-  "./assets/index-kTvvxoZ9.css",
+  "./assets/index-i5QKg6iv.js",
+  "./assets/index-BmFUwL8c.css",
   "./apple-touch-icon.png",
   "./favicon.svg",
   "./icon-192.png",

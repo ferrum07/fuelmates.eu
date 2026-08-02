@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "iconos": "node scripts/generar-iconos.mjs public"
+    "iconos": "node scripts/generar-iconos.mjs public",
+    "provincias": "node scripts/generar-provincias.mjs"
   },
   "dependencies": {
     "react": "^19.2.8",

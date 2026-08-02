@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   calcularViaje,
   formatearEuros,
   formatearNumero,
   parseNum,
 } from './calculo.js'
+import SelectorGasolinera from './SelectorGasolinera.jsx'
 
 const CLAVE_GUARDADO = 'calculadora-gasolina/v1'
 
@@ -153,6 +154,29 @@ export default function App() {
   const cocheLleno = pasajeros.length >= MAX_PASAJEROS
   const hayDatos = resultado.costeTotal > 0
 
+  // La barra de resumen solo tiene sentido cuando el resultado no se ve.
+  const refResultado = useRef(null)
+  const [resultadoALaVista, setResultadoALaVista] = useState(true)
+
+  useEffect(() => {
+    const nodo = refResultado.current
+    if (!nodo || typeof IntersectionObserver === 'undefined') return
+    const observador = new IntersectionObserver(
+      ([entrada]) => setResultadoALaVista(entrada.isIntersecting),
+      { threshold: 0.2 }
+    )
+    observador.observe(nodo)
+    return () => observador.disconnect()
+  }, [])
+
+  const aportantes = resultado.reparto.filter((p) => p.aporta)
+  const pagoMayor = aportantes.length ? Math.max(...aportantes.map((p) => p.paga)) : 0
+  // "Todos igual" con un céntimo de margen: al repartir 27,41 € entre cuatro,
+  // uno paga 6,86 y el resto 6,85, y sigue siendo un reparto a partes iguales.
+  const todosPaganIgual =
+    aportantes.length > 1 &&
+    pagoMayor - Math.min(...aportantes.map((p) => p.paga)) <= 0.011
+
   return (
     <div className="app">
       <header className="cabecera">
@@ -204,6 +228,7 @@ export default function App() {
               placeholder="1,55"
             />
           </div>
+          <SelectorGasolinera onElegir={set('precio')} />
           <p className="nota">
             Se guarda en este dispositivo para el próximo viaje.
           </p>
@@ -364,7 +389,7 @@ export default function App() {
         />
       </section>
 
-      <section className="tarjeta resultado">
+      <section className="tarjeta resultado" ref={refResultado}>
         <h2>Resultado</h2>
 
         {!hayDatos ? (
@@ -418,6 +443,39 @@ export default function App() {
           </>
         )}
       </section>
+
+      <div
+        className={`barra-resumen${
+          hayDatos && !resultadoALaVista ? '' : ' oculta'
+        }`}
+        aria-hidden={!hayDatos || resultadoALaVista}
+      >
+        <div className="barra-interior">
+          <span className="barra-datos">
+            <small>{todosPaganIgual ? 'Cada uno pone' : 'Coste del viaje'}</small>
+            <strong>
+              {formatearEuros(
+                todosPaganIgual ? pagoMayor : resultado.costeTotal
+              )}
+            </strong>
+          </span>
+          <button
+            className="boton-secundario"
+            onClick={() =>
+              refResultado.current?.scrollIntoView({
+                // Sin salto brusco, pero respetando a quien pide menos movimiento
+                behavior: matchMedia('(prefers-reduced-motion: reduce)').matches
+                  ? 'auto'
+                  : 'smooth',
+                block: 'center',
+              })
+            }
+            tabIndex={hayDatos && !resultadoALaVista ? 0 : -1}
+          >
+            Ver reparto
+          </button>
+        </div>
+      </div>
     </div>
   )
 }
