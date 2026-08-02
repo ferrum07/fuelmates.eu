@@ -1,0 +1,571 @@
+:root {
+  color-scheme: light dark;
+
+  --fondo: #eef2f1;
+  --fondo-brillo: rgba(45, 212, 191, 0.16);
+  --superficie: #ffffff;
+  --superficie-hueca: #f3f6f5;
+  --texto: #0d1a17;
+  --tenue: #5f7370;
+  --borde: #e2e9e7;
+  --acento: #0f766e;
+  --acento-suave: #d8f0ed;
+  --hero-a: #0f766e;
+  --hero-b: #134e4a;
+  --aviso: #92400e;
+  --aviso-fondo: #fdf0d5;
+
+  --sombra: 0 1px 2px rgba(13, 26, 23, 0.05), 0 10px 30px -12px rgba(13, 26, 23, 0.18);
+  --sombra-hero: 0 12px 32px -12px rgba(15, 118, 110, 0.55);
+
+  --radio: 1.15rem;
+  --radio-chico: 0.75rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fondo: #0a1412;
+    --fondo-brillo: rgba(45, 212, 191, 0.14);
+    --superficie: #121f1d;
+    --superficie-hueca: #0d1917;
+    --texto: #e6efec;
+    --tenue: #8ba49f;
+    --borde: #1f312e;
+    --acento: #2dd4bf;
+    --acento-suave: #123330;
+    --hero-a: #115e59;
+    --hero-b: #0a3330;
+    --aviso: #fbbf24;
+    --aviso-fondo: #2e2408;
+
+    --sombra: 0 1px 2px rgba(0, 0, 0, 0.4), 0 10px 30px -12px rgba(0, 0, 0, 0.6);
+    --sombra-hero: 0 12px 32px -14px rgba(0, 0, 0, 0.8);
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--fondo);
+  /* Un halo de color detrás de la cabecera, para que no sea un gris plano */
+  background-image: radial-gradient(
+    120% 60% at 50% -10%,
+    var(--fondo-brillo),
+    transparent 70%
+  );
+  background-repeat: no-repeat;
+  color: var(--texto);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app {
+  max-width: 30rem;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  /* Respeta la muesca y la barra inferior del móvil en modo app instalada */
+  padding: max(1.25rem, env(safe-area-inset-top)) max(1rem, env(safe-area-inset-right))
+    calc(2.5rem + env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-left));
+}
+
+/* ---------- cabecera ---------- */
+
+.cabecera {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.5rem 0 0.35rem;
+  text-align: center;
+}
+
+.logo {
+  width: 2.4rem;
+  height: 2.4rem;
+  color: var(--acento);
+  filter: drop-shadow(0 4px 10px rgba(15, 118, 110, 0.28));
+}
+
+.cabecera h1 {
+  margin: 0.15rem 0 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+.subtitulo {
+  margin: 0;
+  color: var(--tenue);
+  font-size: 0.93rem;
+}
+
+/* ---------- selector de modo ---------- */
+
+.selector-modo {
+  position: relative;
+  display: flex;
+  gap: 0.2rem;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: 0.9rem;
+  padding: 0.28rem;
+  box-shadow: var(--sombra);
+}
+
+.selector-modo .indicador {
+  position: absolute;
+  top: 0.28rem;
+  left: 0.28rem;
+  width: calc(50% - 0.38rem);
+  height: calc(100% - 0.56rem);
+  border-radius: 0.68rem;
+  background: var(--acento-suave);
+  transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.selector-modo button {
+  position: relative;
+  flex: 1;
+  font-family: inherit;
+  font-size: 0.93rem;
+  font-weight: 600;
+  color: var(--tenue);
+  background: transparent;
+  border: none;
+  border-radius: 0.68rem;
+  padding: 0.62rem 0.5rem;
+  cursor: pointer;
+  transition: color 0.18s ease;
+}
+
+.selector-modo button.activo {
+  color: var(--acento);
+}
+
+/* ---------- tarjetas ---------- */
+
+.tarjeta {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 1.15rem;
+  box-shadow: var(--sombra);
+}
+
+.tarjeta h2 {
+  margin: 0 0 0.9rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--tenue);
+}
+
+.cabecera-tarjeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.8rem;
+}
+
+.cabecera-tarjeta h2 {
+  margin: 0;
+}
+
+.fila {
+  display: flex;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+/* ---------- campos ---------- */
+
+/* min-width:0 para que puedan encogerse por debajo de su ancho intrínseco;
+   en columna con el campo abajo, así los recuadros quedan alineados aunque
+   una etiqueta ocupe dos líneas y la otra una. */
+.campo {
+  flex: 1 1 8rem;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.etiqueta {
+  display: block;
+  font-size: 0.83rem;
+  color: var(--tenue);
+  margin-bottom: 0.35rem;
+}
+
+.entrada-grupo {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 1.5px solid var(--borde);
+  border-radius: var(--radio-chico);
+  padding: 0 0.75rem;
+  background: var(--superficie-hueca);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.entrada-grupo:focus-within {
+  border-color: var(--acento);
+  box-shadow: 0 0 0 3.5px var(--acento-suave);
+}
+
+.entrada {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-family: inherit;
+  font-size: 1.1rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+  padding: 0.62rem 0;
+  outline: none;
+}
+
+.entrada::placeholder {
+  color: var(--tenue);
+  font-weight: 500;
+  opacity: 0.65;
+}
+
+.sufijo {
+  color: var(--tenue);
+  font-size: 0.82rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.nota {
+  margin: 0.75rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--tenue);
+}
+
+.nota-campo {
+  flex: 1 1 8rem;
+  align-self: flex-end;
+  margin: 0 0 0.6rem;
+}
+
+/* ---------- interruptores ---------- */
+
+.interruptor {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+  cursor: pointer;
+}
+
+.interruptor input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.palanca {
+  flex: none;
+  width: 2.7rem;
+  height: 1.55rem;
+  border-radius: 999px;
+  background: var(--borde);
+  position: relative;
+  transition: background 0.18s ease;
+}
+
+.palanca::after {
+  content: '';
+  position: absolute;
+  top: 0.18rem;
+  left: 0.18rem;
+  width: 1.19rem;
+  height: 1.19rem;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
+  transition: transform 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.interruptor input:checked + .palanca {
+  background: var(--acento);
+}
+
+.interruptor input:checked + .palanca::after {
+  transform: translateX(1.15rem);
+}
+
+.interruptor input:focus-visible + .palanca {
+  box-shadow: 0 0 0 3.5px var(--acento-suave);
+}
+
+.texto {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.texto strong {
+  font-size: 0.93rem;
+  font-weight: 600;
+}
+
+.texto small {
+  color: var(--tenue);
+  font-size: 0.79rem;
+}
+
+/* ---------- personas ---------- */
+
+.personas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.persona {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--superficie-hueca);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-chico);
+  padding: 0.45rem 0.6rem;
+}
+
+.avatar {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 1.85rem;
+  height: 1.85rem;
+  border-radius: 50%;
+  background: var(--borde);
+  color: var(--tenue);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.avatar-conductor {
+  background: var(--acento);
+  color: var(--superficie);
+}
+
+.nombre-fijo {
+  flex: 1;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.persona .nombre {
+  flex: 1;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 0.2rem 0;
+}
+
+.km-persona {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  border-bottom: 1.5px dashed var(--borde);
+}
+
+.persona .km {
+  width: 3.5rem;
+  text-align: right;
+  font-size: 0.93rem;
+  padding: 0.2rem 0;
+}
+
+.boton-icono {
+  flex: none;
+  border: none;
+  background: transparent;
+  color: var(--tenue);
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 0.15rem;
+  border-radius: 0.4rem;
+  transition: color 0.15s ease;
+}
+
+.boton-icono:hover {
+  color: #e11d48;
+}
+
+/* ---------- botones ---------- */
+
+.boton,
+.boton-secundario {
+  font-family: inherit;
+  cursor: pointer;
+  border-radius: var(--radio-chico);
+  font-weight: 650;
+  transition: transform 0.1s ease, opacity 0.15s ease, background 0.15s ease;
+}
+
+.boton {
+  width: 100%;
+  margin-top: 1.1rem;
+  padding: 0.85rem;
+  border: none;
+  background: #fff;
+  color: var(--hero-a);
+  font-size: 0.98rem;
+}
+
+.boton:active {
+  transform: scale(0.985);
+}
+
+.boton-secundario {
+  border: 1.5px solid var(--borde);
+  background: var(--superficie);
+  color: var(--acento);
+  padding: 0.4rem 0.72rem;
+  font-size: 0.84rem;
+}
+
+.boton-secundario:disabled {
+  color: var(--tenue);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ---------- resultado ---------- */
+
+.resultado {
+  background: linear-gradient(150deg, var(--hero-a), var(--hero-b));
+  border-color: transparent;
+  box-shadow: var(--sombra-hero);
+  color: #fff;
+}
+
+.resultado h2 {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.total {
+  display: flex;
+  flex-direction: column;
+}
+
+.total-etiqueta {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.88rem;
+}
+
+.total-cifra {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.desglose {
+  margin: 0.3rem 0 0;
+  font-size: 0.81rem;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.reparto {
+  list-style: none;
+  margin: 1.1rem 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.reparto li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.reparto .avatar {
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
+.reparto .avatar-conductor {
+  background: #fff;
+  color: var(--hero-a);
+}
+
+.reparto-nombre {
+  flex: 1;
+  font-size: 0.93rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reparto li strong {
+  font-size: 1.02rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.reparto .exento {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.reparto .exento strong {
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+.aviso {
+  margin: 1.1rem 0 0;
+  padding: 0.7rem 0.85rem;
+  background: var(--aviso-fondo);
+  color: var(--aviso);
+  border-radius: var(--radio-chico);
+  font-size: 0.86rem;
+}
+
+.resultado .aviso {
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+.vacio {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.93rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
